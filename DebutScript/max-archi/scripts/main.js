@@ -38,6 +38,7 @@ var PongGame = function(params){
   this.canvas = document.getElementById('canvasPong');
   this.manifest;
   this.tkr;
+  this.player = this.player2 = this.ball = {x:0, y:0};
 
   this.resLoaded = 0;
 
@@ -138,45 +139,56 @@ var PongGame = function(params){
     this.gfx['startB'].x = (this.canvas.width - this.gfx['startB'].image.width)/2;
     this.gfx['startB'].y = (this.canvas.height - this.gfx['startB'].image.height)/2;
 
-    this.gfx['creditsB'].x = (this.canvas.width - this.gfx['startB'].image.width)/2;;
-    this.gfx['creditsB'].y = (this.canvas.height - this.gfx['startB'].image.height)/2;;
+    this.gfx['main'].x = (this.canvas.width - this.gfx['main'].image.width)/2;
+    this.gfx['main'].y = 20;
 
-    this.TitleView.addChild(this.gfx['main'], this.gfx['startB'], this.gfx['creditsB']);
+    this.TitleView.addChild(this.gfx['main'], this.gfx['startB']);
 
     this.stage.addChild(this.gfx['bg'], this.TitleView);
     this.stage.update();
 
-    // Ecouteurs boutons Menu
-    this.gfx['startB'].onPress = this.tweenTitleView;
-    this.gfx['creditsB'].onPress = this.addCreditsView;
+    //Handlers
+    var that = this;
+    this.TitleView.on("click", this.tweenTitleView, this);
+
+    //add Ticker
+    createjs.Ticker.on("tick", this.tickMenu, this);
+  }
+
+  this.tickMenu = function(event){
+    this.stage.update(event);
   }
 
   this.addCreditsView = function(){
+    console.log('addCreditsView()');
     this.credits.x = 480;
 
-    this.stage.addChild(this.credits);
+    this.stage.addChild(this.gfx['credits']);
     this.stage.update();
-    createjs.Tween.get(this.credits).to({x:0}, 300);
+    createjs.Tween.get(this.gfx['credits']).to({x:0}, 300);
     this.credits.onPress = this.hideCredits;
   }
 
   this.removeCreditsView = function(){
-    createjs.Tween.get(this.credits).to({x:480}, 300).call(this.rmvCredits);
+    console.log('removeCreditsView()');
+    createjs.Tween.get(this.gfx['credits']).to({x:480}, 300).call(this.rmvCredits, [], this);
   }
 
   this.rmvCredits = function(){
-    this.stage.removeChild(this.credits);
+    console.log('rmvCredits()');
+    this.stage.removeChild(this.gfx['credits']);
   }
 
   this.tweenTitleView = function(){
-    createjs.Tween.get(this.TitleView).to({y:-320}, 300).call(this.addGameView);
+    console.log('tweenTitleView()');
+    createjs.Tween.get(this.TitleView).to({x:-500}, 500).call(this.addGameView, [], this);
   }
 
   this.addGameView = function(){
+    console.log('addGameView()');
     // Enlever le Menu & Credits si présents
     this.stage.removeChild(this.TitleView);
     this.TitleView = null;
-    this.credits = null;
 
     // Ajout des positions
     this.player.x = 2;
@@ -196,11 +208,11 @@ var PongGame = function(params){
     this.player2Score.y = 20;
 
     // Handle Events
-    this.bg.onPress = this.startGame;
+    this.gfx['bg'].on("click", this.startGame, this);
   }
 
   this.startGame = function(e){
-    this.bg.onPress = null;
+    this.bg = null;
     this.stage.onMouseMove = this.movePaddle;
 
     createjs.Ticker.addListener(this.tkr, false);
