@@ -35,40 +35,15 @@ var PongGame = function(params){
 
   //Définition des variables utiles
   this.stage;
-  this.canvas;
+  this.canvas = document.getElementById('canvasPong');
   this.manifest;
   this.tkr;
 
   this.resLoaded = 0;
 
-  this.bgImg = new Image();
-  this.bg = {x:0, y:0};
-
-  this.mainImg = new Image();
-  this.main = {x:0, y:0};
-
-  this.startBImg = new Image();
-  this.startB = {x:0, y:0};
-
-  this.creditsBImg = new Image();
-  this.creditsB = {x:0, y:0}
-
+  this.gfx = new Array();
+  
   this.TitleView = new createjs.Container();
-
-  this.creditsViewImg = new Image();
-  this.credits = {x:0, y:0};
-
-  this.playerImg = new Image();
-  this.player = {x:0, y:0};
-
-  this.ballImg = new Image();
-  this.ball = {x:0, y:0};
-
-  this.winImg = new Image();
-  this.win = {x:0, y:0};
-
-  this.loseImg = new Image();
-  this.lose = {x:0, y:0};
 
   this.playerScores = new Array();
 
@@ -82,8 +57,8 @@ var PongGame = function(params){
     console.log('PongGame working =D');
 
     //Récupération du canvas
-    this.canvas = document.getElementById('canvasPong');
-    this.stage = new createjs.Stage(this.canvas);
+    this.stage = new createjs.Stage(this.canvas.id);
+
     this.stage.mouseEventsEnabled = true;
 
     //Chargement des sprites
@@ -91,6 +66,7 @@ var PongGame = function(params){
 
     //Lancement du défilement de frames
     this.setTicker();
+    
   }
 
 /* *****************************************************************************
@@ -131,10 +107,15 @@ var PongGame = function(params){
   //handleFileLoad() -> fired when each upload is processing
   this.handleFileLoad = function(event){
     if(event.item.type == createjs.LoadQueue.IMAGE){
+      // console.log(event.item.src);
+      // console.log(event.item.id);
       var img = new createjs.Bitmap();
-      img.src = event.src;
+      img.src = event.item.src;
+
       img.onload = this.handleLoadComplete;
-      window[event.id] = new createjs.Bitmap(img);
+      this.gfx[event.item.id] = new createjs.Bitmap(img.src);
+      this.gfx[event.item.id].name = event.item.id;
+
       this.handleLoadComplete();
     }
   }
@@ -153,23 +134,21 @@ var PongGame = function(params){
 ***************************************************************************** */
   this.addTitleView = function(){
     var that = this;
-    console.log("addtitle");
-    this.startB.x = 0;
-    this.startB.y = 0;
-    this.startB.name = 'startB';
 
-    this.creditsB.x = 0;
-    this.creditsB.y = 0;
+    this.gfx['startB'].x = (this.canvas.width - this.gfx['startB'].image.width)/2;
+    this.gfx['startB'].y = (this.canvas.height - this.gfx['startB'].image.height)/2;
 
-    createjs.EventDispatcher.initialize(this.TitleView);
-    this.TitleView.addChild(this.main, this.startB, this.creditsB);
+    this.gfx['creditsB'].x = (this.canvas.width - this.gfx['startB'].image.width)/2;;
+    this.gfx['creditsB'].y = (this.canvas.height - this.gfx['startB'].image.height)/2;;
 
-    this.stage.addChild(this.bg, this.TitleView);
+    this.TitleView.addChild(this.gfx['main'], this.gfx['startB'], this.gfx['creditsB']);
+
+    this.stage.addChild(this.gfx['bg'], this.TitleView);
     this.stage.update();
 
     // Ecouteurs boutons Menu
-    this.startB.onPress = this.tweenTitleView;
-    this.creditsB.onPress = this.addCreditsView;
+    this.gfx['startB'].onPress = this.tweenTitleView;
+    this.gfx['creditsB'].onPress = this.addCreditsView;
   }
 
   this.addCreditsView = function(){
@@ -311,4 +290,6 @@ var PongGame = function(params){
     }
   
   }
+
+  createjs.EventDispatcher.initialize(PongGame.prototype);
 };
