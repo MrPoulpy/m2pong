@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "socket.io": "*",
-    "leapjs": "*",
-    "express": "*"
-  }
-}
