@@ -1,0 +1,31 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+        <title>Pong</title> 
+
+        
+
+        <script type="text/javascript" src="libs/easeljs-0.8.1.min.js"></script>
+        <script type="text/javascript" src="libs/tweenjs-0.6.1.min.js"></script>
+        <script type="text/javascript" src="libs/soundjs-0.6.1.min.js"></script>
+        <script type="text/javascript" src="libs/preloadjs-0.6.1.min.js"></script>
+                <script type="text/javascript" src="scripts/main.js"></script>
+
+        <script type="text/javascript" src="libs/jquery-1.11.3.min.js"></script>
+
+
+        <script type="text/javascript">
+            jQuery.noConflict();
+            jQuery(document).ready(function($){
+                var game = new PongGame();
+                game.launch();
+            });
+        </script>
+
+        <style>*{-webkit-tap-highlight-color: rgba(0, 0, 0, 0);}</style> 
+
+    </head> 
+    <body> 
+      <canvas id="canvasPong" width="612" height="612" style="background-color:black;"></canvas> 
+    </body> 
+</html>
