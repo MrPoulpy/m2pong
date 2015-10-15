@@ -19,6 +19,13 @@ module.exports = {
             collection: 'ball',
             via: 'game'
         }
+    },
+    beforeCreate: function (values, callback) {
+        if (typeof values.players === 'undefined'|| values.players.length >= 2) {
+            var error = 'Minimum 2 players.';
+            return callback(error);
+        } else
+            return callback();
     }
 };
 
