@@ -19,13 +19,14 @@ var PongGame = function(params){
     },
     //Sprites par défaut
     sprites : {
-      bg : { src : 'sprites/bg.png', id : 'bg' },
+      bg : { src : 'sprites/map.png', id : 'bg' },
       main : { src : 'sprites/main.png', id : 'main' },
       startB : { src : 'sprites/startB.png', id : 'startB' },
       creditsB : { src : 'sprites/creditsB.png', id : 'creditsB' },
       creditsView : { src : 'sprites/credits.png', id : 'credits' },
-      paddle : { src : 'sprites/paddle.png', id : 'paddle' },
-      paddle2 : { src : 'sprites/paddle.png', id : 'paddle2' },
+      paddleLeft : { src : 'sprites/paddle_left.png', id : 'paddle_left' },
+      paddleRight : { src : 'sprites/paddle_right.png', id : 'paddle_right' },
+      paddleCenter : { src : 'sprites/paddle_center.png', id : 'paddle_center' },
       ball : { src : 'sprites/ball.png', id : 'ball' },
       win : { src : 'sprites/win.png', id : 'win' },
       lose : { src : 'sprites/lose.png', id : 'lose' }
@@ -42,7 +43,8 @@ var PongGame = function(params){
   this.canvas = document.getElementById('canvasPong');
   this.manifest;
   this.tkr;
-  this.paddle = this.paddle2 = this.ball = {x:0, y:0};
+  this.player = this.ball = {x:0,y:0};
+  this.playerScore = new Text('0', 'bold 20px Arial', '#A3FF24');
 
   this.resLoaded = 0;
 
@@ -50,8 +52,6 @@ var PongGame = function(params){
   
   this.TitleView = new createjs.Container();
   this.GameView = new createjs.Container();
-
-  this.playerScores = new Array();
 
   //Merge les paramètres de partie avec la config de base
   jQuery.extend(params, this.config);
@@ -92,7 +92,7 @@ var PongGame = function(params){
 ***************************************************************************** */
   this.loadGfx = function(){
     var s = this.config.sprites;
-    this.manifest = [s.bg, s.main, s.startB, s.creditsB, s.creditsView, s.paddle, s.paddle2, s.ball, s.win, s.lose];
+    this.manifest = [s.bg, s.main, s.startB, s.creditsB, s.creditsView, s.paddleLeft, s.paddleRight, s.paddleCenter, s.ball, s.win, s.lose];
 
     this.queue = new createjs.LoadQueue();
     this.queue.on("progress", this.handleProgress, this);
@@ -159,25 +159,25 @@ var PongGame = function(params){
     this.TitleView.on("click", this.tweenTitleView, this);
   }
 
-  this.addCreditsView = function(){
-    console.log('addCreditsView()');
-    this.credits.x = 480;
+  // this.addCreditsView = function(){
+  //   console.log('addCreditsView()');
+  //   this.credits.x = 480;
 
-    this.stage.addChild(this.gfx['credits']);
-    this.stage.update();
-    createjs.Tween.get(this.gfx['credits']).to({x:0}, 300);
-    this.credits.onPress = this.hideCredits;
-  }
+  //   this.stage.addChild(this.gfx['credits']);
+  //   this.stage.update();
+  //   createjs.Tween.get(this.gfx['credits']).to({x:0}, 300);
+  //   this.credits.onPress = this.hideCredits;
+  // }
 
-  this.removeCreditsView = function(){
-    console.log('removeCreditsView()');
-    createjs.Tween.get(this.gfx['credits']).to({x:480}, 300).call(this.rmvCredits, [], this);
-  }
+  // this.removeCreditsView = function(){
+  //   console.log('removeCreditsView()');
+  //   createjs.Tween.get(this.gfx['credits']).to({x:480}, 300).call(this.rmvCredits, [], this);
+  // }
 
-  this.rmvCredits = function(){
-    console.log('rmvCredits()');
-    this.stage.removeChild(this.gfx['credits']);
-  }
+  // this.rmvCredits = function(){
+  //   console.log('rmvCredits()');
+  //   this.stage.removeChild(this.gfx['credits']);
+  // }
 
   this.tweenTitleView = function(){
     console.log('tweenTitleView()');
@@ -190,71 +190,110 @@ var PongGame = function(params){
     this.stage.removeChild(this.TitleView);
     this.TitleView = null;
 
-    // Ajout des positions
-    this.gfx['paddle2'].x = this.config.gamevar.limit;
-    this.gfx['paddle2'].y = this.config.gamevar.limit;
+    //Construction gfx player 
+    this.gfx['player'] = new createjs.Container();
+    this.gfx['player'].addChild(
+      this.gfx['paddle_left'],
+      this.gfx['paddle_center'],
+      this.gfx['paddle_right']);
 
-    this.gfx['paddle'].x = this.config.gamevar.limit;
-    this.gfx['paddle'].y = this.canvas.height - this.gfx['paddle'].image.height - this.config.gamevar.limit;
+    //Alimentation variables
+    this.player = this.gfx['player'];
+    this.ball = this.gfx['ball'];
+
+
+    this.gfx['paddle_left'].x = -10;
+    this.gfx['paddle_center'].scaleX = 150;
+    this.gfx['paddle_right'].x = 150;
+
+    // Ajout des positions
+    this.gfx['player'].x = this.config.gamevar.limit;
+    this.gfx['player'].y = this.config.gamevar.limit;
+
+    this.gfx['player'].x = this.config.gamevar.limit;
+    this.gfx['player'].y = this.canvas.height - this.gfx['paddle_center'].image.height - this.config.gamevar.limit;
 
     this.gfx['ball'].x = 240 - 15;
     this.gfx['ball'].y = 160 - 15;
 
     // Score
-    // this.playerScore = new Text('0', 'bold 20px Arial', '#A3FF24');
-    // this.playerScore.x = 211;
-    // this.playerScore.y = 20;
+    this.playerScore.x = 211;
+    this.playerScore.y = 20;
 
-    // this.player2Score = new Text('0', 'bold 20px Arial', '#A3FF24');
-    // this.player2Score.x = 262;
-    // this.player2Score.y = 20;
-
-    this.GameView.addChild(this.gfx['paddle'], this.gfx['paddle2'], this.gfx['ball']);
+    this.GameView.addChild(this.gfx['player'], this.gfx['ball']);
 
     // Handle Events
     this.startGame();
   }
 
   this.startGame = function(e){
-    this.bg = null;
+    console.log('startGame()');
+    console.log(this.stage);
     this.stage.addChild(this.GameView);
-
+    this.stage.addEventListener("mousemove", this.movePaddle);
     // this.stage.onMouseMove = this.movePaddle;
+    
+
+    // Setup Leap loop with frame callback function
+  var controllerOptions = {enableGestures: true};
+
+    Leap.loop(controllerOptions, function(frame) {
+
+      if (frame.hands.length > 0) {
+        mouse.x = frame.hands[0].palmPosition[0]+200;
+        mouse.y = frame.hands[0].palmPosition[1];
+      }
+
+      for (var i = 0; i < frame.gestures.length; i++) {
+          var gesture = frame.gestures[i];
+          //if(gesture.type == "screenTap" && over == 0){
+          if(frame.hands[0].palmPosition[1] < 80 && play == 0){
+            animloop();
+            // Delete the start button after clicking it
+            startBtn = {};
+            play = 1;
+          }
+        console.log(play);
+      }
+    }); 
+    
   }
 
   this.movePaddle = function(e){
+    console.log('movePaddle()');
     this.player.y = e.stageY;
   }
 
-  this.reset = function(){
+  this.resetloop = function(){
+    console.log('tick()');
     this.ball.x = 240 - 15;
     this.ball.y = 160 - 15;
     this.player.y = 160 - 37.5;
-    this.player2.y = 160 - 37.5;
 
-    this.stage.onMouseMove = null;
-    createjs.Ticker.removeListener(this.tkr);
-    this.bg.onPress = this.startGame;
+    //this.stage.onMouseMove = null;
+    createjs.Ticker.removeEventListener(this.tkr);
+    //this.stage.addEventListener("click", this.startGame);
   }
 
   this.alertScreen = function(e){
-    createjs.Ticker.removeListener(this.tkr);
-    this.stage.onMouseMove = null;
-    this.bg.onPress = null;
+    console.log('alertScreen()');
+    createjs.Ticker.removeEventListener(this.tkr);
+    // this.stage.onMouseMove = null;
+    // this.bg.onPress = null;
 
-    if(e == 'win'){
-      this.win.x = 140;
-      this.win.y = -90;
+    // if(e == 'win'){
+    //   this.win.x = 140;
+    //   this.win.y = -90;
 
-      this.stage.addchild(this.win);
-      createjs.Tween.get(this.win).to({y:115}, 300);
-    }else{
-      this.lose.x = 140;
-      this.lose.y = -90;
+    //   this.stage.addchild(this.win);
+    //   createjs.Tween.get(this.win).to({y:115}, 300);
+    // }else{
+    //   this.lose.x = 140;
+    //   this.lose.y = -90;
 
-      this.stage.addChild(this.lose);
-      createjs.Tween.get(this.lose).to({y:115}, 300);
-    }
+    //   this.stage.addChild(this.lose);
+    //   createjs.Tween.get(this.lose).to({y:115}, 300);
+    // }
   }
 
   this.update = function(){
@@ -276,33 +315,24 @@ var PongGame = function(params){
     if((this.ball.x + (30)) > 480){
         xSpeed = -xSpeed;
         this.playerScore.text = parseInt(this.playerScore.text + 1);
-        reset();
-    }
-     
-    /* Cpu collision */
-    if(ball.x + 30 > cpu.x && ball.x + 30 < cpu.x + 22 && ball.y >= cpu.y && ball.y < cpu.y + 75){
-        xSpeed *= -1;
+        this.resetloop();
     }
      
     /* Player collision */
-    if(ball.x <= player.x + 22 && ball.x > player.x && ball.y >= player.y && ball.y < player.y + 75){
+    if(this.ball.x <= this.player.x + 22 && this.ball.x > this.player.x && this.ball.y >= this.player.y && this.ball.y < this.player.y + 75){
         xSpeed *= -1;
     }
      
     /* Stop Paddle from going out of canvas */
-    if(player.y >= 249){
-        player.y = 249;
+    if(this.player.y >= 249){
+        this.player.y = 249;
     }
-     
+    
     /* Check for Win */
-    if(playerScore.text == '10'){
+    if(this.playerScore.text == '10'){
         alert('win');
     }
      
-    /* Check for Game Over */
-    if(cpuScore.text == '10'){
-        alert('lose');
-    }
   
   }
 
