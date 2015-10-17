@@ -24,13 +24,17 @@ var PongGame = function(params){
       startB : { src : 'sprites/startB.png', id : 'startB' },
       creditsB : { src : 'sprites/creditsB.png', id : 'creditsB' },
       creditsView : { src : 'sprites/credits.png', id : 'credits' },
-      player : { src : 'sprites/paddle.png', id : 'paddle' },
+      paddle : { src : 'sprites/paddle.png', id : 'paddle' },
+      paddle2 : { src : 'sprites/paddle.png', id : 'paddle2' },
       ball : { src : 'sprites/ball.png', id : 'ball' },
       win : { src : 'sprites/win.png', id : 'win' },
       lose : { src : 'sprites/lose.png', id : 'lose' }
     },
     //Frames per second
-    fps : 30
+    fps : 30,
+    gamevar : {
+      limit : 20
+    }
   }
 
   //Définition des variables utiles
@@ -38,13 +42,14 @@ var PongGame = function(params){
   this.canvas = document.getElementById('canvasPong');
   this.manifest;
   this.tkr;
-  this.player = this.player2 = this.ball = {x:0, y:0};
+  this.paddle = this.paddle2 = this.ball = {x:0, y:0};
 
   this.resLoaded = 0;
 
   this.gfx = new Array();
   
   this.TitleView = new createjs.Container();
+  this.GameView = new createjs.Container();
 
   this.playerScores = new Array();
 
@@ -55,27 +60,31 @@ var PongGame = function(params){
                        launch() -> initialisation jeu
 ***************************************************************************** */
   this.launch = function(){
-    console.log('PongGame working =D');
+    console.log('PongGame App : launched');
 
     //Récupération du canvas
     this.stage = new createjs.Stage(this.canvas.id);
-
     this.stage.mouseEventsEnabled = true;
-
-    //Chargement des sprites
-    this.loadGfx();
 
     //Lancement du défilement de frames
     this.setTicker();
-    
+
+    //Chargement des sprites
+    this.loadGfx();
   }
 
 /* *****************************************************************************
                        setTicker() -> initialisation fps
 ***************************************************************************** */
   this.setTicker = function(){
+    //add Ticker
+    createjs.Ticker.on("tick", this.tick, this);
     createjs.Ticker.setFPS(this.config.fps);
     createjs.Ticker.addEventListener(this.stage);
+  }
+
+  this.tick = function(event){
+    this.stage.update(event);
   }
 
 /* *****************************************************************************
@@ -83,7 +92,7 @@ var PongGame = function(params){
 ***************************************************************************** */
   this.loadGfx = function(){
     var s = this.config.sprites;
-    this.manifest = [s.bg, s.main, s.startB, s.creditsB, s.creditsView, s.player, s.ball, s.win, s.lose];
+    this.manifest = [s.bg, s.main, s.startB, s.creditsB, s.creditsView, s.paddle, s.paddle2, s.ball, s.win, s.lose];
 
     this.queue = new createjs.LoadQueue();
     this.queue.on("progress", this.handleProgress, this);
@@ -134,8 +143,6 @@ var PongGame = function(params){
                 addTitleView() ->  Affichage de l'écran titre
 ***************************************************************************** */
   this.addTitleView = function(){
-    var that = this;
-
     this.gfx['startB'].x = (this.canvas.width - this.gfx['startB'].image.width)/2;
     this.gfx['startB'].y = (this.canvas.height - this.gfx['startB'].image.height)/2;
 
@@ -150,13 +157,6 @@ var PongGame = function(params){
     //Handlers
     var that = this;
     this.TitleView.on("click", this.tweenTitleView, this);
-
-    //add Ticker
-    createjs.Ticker.on("tick", this.tickMenu, this);
-  }
-
-  this.tickMenu = function(event){
-    this.stage.update(event);
   }
 
   this.addCreditsView = function(){
@@ -191,32 +191,35 @@ var PongGame = function(params){
     this.TitleView = null;
 
     // Ajout des positions
-    this.player.x = 2;
-    this.player.y = 160 - 37.5;
-    this.player2.x = 2;
-    this.player2.y = 612 -100;
-    this.ball.x = 240 - 15;
-    this.ball.y = 160 - 15;
+    this.gfx['paddle2'].x = this.config.gamevar.limit;
+    this.gfx['paddle2'].y = this.config.gamevar.limit;
+
+    this.gfx['paddle'].x = this.config.gamevar.limit;
+    this.gfx['paddle'].y = this.canvas.height - this.gfx['paddle'].image.height - this.config.gamevar.limit;
+
+    this.gfx['ball'].x = 240 - 15;
+    this.gfx['ball'].y = 160 - 15;
 
     // Score
-    this.playerScore = new Text('0', 'bold 20px Arial', '#A3FF24');
-    this.playerScore.x = 211;
-    this.playerScore.y = 20;
+    // this.playerScore = new Text('0', 'bold 20px Arial', '#A3FF24');
+    // this.playerScore.x = 211;
+    // this.playerScore.y = 20;
 
-    this.player2Score = new Text('0', 'bold 20px Arial', '#A3FF24');
-    this.player2Score.x = 262;
-    this.player2Score.y = 20;
+    // this.player2Score = new Text('0', 'bold 20px Arial', '#A3FF24');
+    // this.player2Score.x = 262;
+    // this.player2Score.y = 20;
+
+    this.GameView.addChild(this.gfx['paddle'], this.gfx['paddle2'], this.gfx['ball']);
 
     // Handle Events
-    this.gfx['bg'].on("click", this.startGame, this);
+    this.startGame();
   }
 
   this.startGame = function(e){
     this.bg = null;
-    this.stage.onMouseMove = this.movePaddle;
+    this.stage.addChild(this.GameView);
 
-    createjs.Ticker.addListener(this.tkr, false);
-    this.tkr.tick = update;
+    // this.stage.onMouseMove = this.movePaddle;
   }
 
   this.movePaddle = function(e){
