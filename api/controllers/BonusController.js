@@ -24,14 +24,8 @@ module.exports = {
 
 	getAllBonus: function(req,res){
 		Bonus.find({}, function(err,found){
-			return res.ok({
-				value: found
-			});
-			// res.view('bonus',{'bonus':found});
+			res.view('bonus',{'bonus':found});
 		});
-
 	}
-	// Article.find({}, function(err, found){
- //        			res.view( 'articles', {articles: found} );
- //    		});
+	
 };

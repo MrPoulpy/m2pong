@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bonus</title>
+    <meta charset="UTF-8">
+</head>
+<body>
+    <h1>Les bonus</h1>
+    <ul>
+        <% bonus.forEach(function(bo){ %>
+            <li>
+                <h2><%= bo.name %></h2>
+                <p>Target : <%= bo.target %></p>
+                <p>Param : <%= bo.param %></p>
+                <p>Action : <%= bo.action %></p>
+            </li>
+        <% }); %>
+    </ul>
+</body>
+</html>

@@ -34,7 +34,20 @@ module.exports.routes = {
 
   '/user/test' : 'UserController.test',
   'Post /user/findall' : 'UserController.testA',
-  'Post /user/findByPet' : 'UserController.findByPet'
+  'Post /user/findByPet' : 'UserController.findByPet',
+
+  // '/bonus/add' : 'BonusController.addBonus',
+  // 'Post /bonus/add' : 'BonusController.addBonus',
+
+  "/bonus/add/:name&:target&:param&:action":{
+    controller: "BonusController",
+    action: "addBonus"
+  },
+
+  // '/bonus/getall' : 'BonusController.getAllBonus',
+  // 'Post /bonus/getall' : 'BonusController.getAllBonus'
+
+
 
 
   /***************************************************************************
