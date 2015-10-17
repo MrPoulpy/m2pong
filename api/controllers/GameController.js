@@ -6,14 +6,18 @@
  */
 
 module.exports = {
-	create: function(reg, res){
-        reg.paramsAll();
+	create: function(req, res){
+        req.paramsAll();
         if (typeof values.players === 'undefined'|| values.players.length >= 2) {
             var error = 'Minimum 2 players.';
             return res.badRequest();
-        } else{
+        } else {
             return res.ok(game.toJson());
         }
+    },
+    new_game: function(req,res){
+        //res.view('new_game', {layout:'new_game'});
+        return res.view('new_game');
     }
 };
 

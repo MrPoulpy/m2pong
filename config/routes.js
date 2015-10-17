@@ -34,9 +34,9 @@ module.exports.routes = {
 
   '/user/test' : 'UserController.test',
   'Post /user/findall' : 'UserController.testA',
-  'Post /user/findByPet' : 'UserController.findByPet'
 
-
+  'GET /game/create': 'Game.create',
+  'GET /game': 'Game.new_game'
   /***************************************************************************
   *                                                                          *
   * Custom routes here...                                                    *
