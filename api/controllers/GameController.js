@@ -48,11 +48,8 @@ module.exports = {
         //console.log(data);
     },
     addPlayer: function(data){
-
         return res.view('homepage')
     },
-
-
     lol: function(data){
         console.log(data)
     }
