@@ -44,8 +44,14 @@ module.exports.routes = {
     action: "addBonus"
   },
 
-  // '/bonus/getall' : 'BonusController.getAllBonus',
-  // 'Post /bonus/getall' : 'BonusController.getAllBonus'
+  "/bonus/emit":"BonusController.emitBonus",
+  "/bonus/remove/:name":{
+    controller: "BonusController",
+    action: "removeBonusByName"
+  },
+
+  '/bonus/getall' : 'BonusController.getAllBonus',
+  'Post /bonus/getall' : 'BonusController.getAllBonus'
 
 
 
